@@ -1,0 +1,36 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+\title{Memo for Gaussian Process}
+\author{hiro\_makimaki}
+\date{2019/04/15}
+
+\begin{document}
+\maketitle
+
+\section{Gaussian Process}
+\begin{itemize}
+  \item $\mathcal{X}$ : input data space
+  \item $f: \mathcal{X} \rightarrow \mathbb{R}$ : real-valued function
+  \item $\mu: \mathcal{X} \rightarrow \mathbb{R}$
+  \item $k: \mathcal{X} \times \mathcal{X} \rightarrow \mathbb{R}$
+\end{itemize}
+
+We consider the case that for any natural number $N \in \mathbb{N}$ and inputs $x_{1}, x_{2}, \hdots, x_{N} \in \mathcal{X}$,
+the output vector is normally distributed as follows:
+\[
+  \left( \begin{array}{c} f(x_{1}) \\ f(x_{2}) \\ \vdots \\ f(x_{N}) \end{array} \right)
+  \sim N \left(
+  \left( \begin{array}{c} \mu(x_{1}) \\ \mu(x_{2}) \\ \vdots \\ \mu(x_{N}) \end{array} \right),
+  \left( \begin{array}{cccc} k(x_{1}, x_{1}) & k(x_{1}, x_{2}) & \hdots & k(x_{1}, x_{N}) \\
+                                     k(x_{2}, x_{1}) & k(x_{2}, x_{2}) & \hdots & k(x_{2}, x_{N}) \\
+                                     \vdots & \vdots & \ddots & \vdots \\
+                                     k(x_{N}, x_{1}) & k(x_{N}, x_{2}) & \hdots & k(x_{N}, x_{N}) \end{array} \right)
+  \right).
+\]
+Then, we call $f$ a Gaussian Process and express as follows:
+\[ f \sim \text{GP} ( \mu(x), k(x, x')). \]
+The function $k$ is called as a kernel function.
+\end{document}
