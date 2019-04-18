@@ -106,7 +106,7 @@ class UCBPlayer:
             latest_arm = arms[-1]
             return (latest_arm + 1) % num_arms # search the next arm
         df = pd.DataFrame({'arm': arms, 'reward': rewards})
-        df = df.groupby('arm').mean() + np.sqrt(0.5 * np.log(t) / df.groupby('arm').sum())
+        df = df.groupby('arm').mean() + np.sqrt(0.5 * np.log(t) / df.groupby('arm').count())
         return df.sort_values('reward', ascending=False).index[0]
 
     def play(self, num_choices, bandit):
