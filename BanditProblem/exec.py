@@ -80,13 +80,60 @@ class EpsGreedyPlayer:
         print('The game finished.')
 
 
+class UCBPlayer:
+    def __init__(self):
+        self._arms = None
+        self._rewards = None
+
+    @property
+    def arms(self):
+        return self._arms
+
+    @property
+    def rewards(self):
+        return self._rewards
+
+    @staticmethod
+    def choice_arm(arms, rewards, num_arms):
+        """
+        score = mu + sqrt(log t / (2 N(t)))
+        """
+        assert len(arms) == len(rewards)
+        t = len(arms)
+        if t == 0: # Initial search
+            return 0
+        elif t < num_arms:
+            latest_arm = arms[-1]
+            return (latest_arm + 1) % num_arms # search the next arm
+        df = pd.DataFrame({'arm': arms, 'reward': rewards})
+        df = df.groupby('arm').mean() + np.sqrt(0.5 * np.log(t) / df.groupby('arm').sum())
+        return df.sort_values('reward', ascending=False).index[0]
+
+    def play(self, num_choices, bandit):
+        self._arms = np.zeros(num_choices).astype(np.int)
+        self._rewards = np.zeros(num_choices).astype(np.int)
+        for i in range(num_choices):
+            arm = self.choice_arm(self._arms[:i], self._rewards[:i], bandit.num_arms)
+            assert 0 <= arm <= bandit.num_arms
+            self._arms[i] = arm
+            self._rewards[i] = bandit.get_rewards(arm)
+        print('The game finished.')
+
+
 def main():
     bandit = BernoulliBandit([0.4, 0.5, 0.6])
+
     player = EpsGreedyPlayer()
     player.play(30, bandit)
+    print("*** {} ***".format(player.__class__.__name__))
     print("Arms   :", player.arms)
     print("Rewards:", player.rewards)
 
+    player = UCBPlayer()
+    player.play(30, bandit)
+    print("*** {} ***".format(player.__class__.__name__))
+    print("Arms   :", player.arms)
+    print("Rewards:", player.rewards)
 
 if __name__ == '__main__':
     main()
