@@ -14,6 +14,7 @@ Reference:
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 np.random.seed(0)
 
@@ -120,20 +121,35 @@ class UCBPlayer:
         print('The game finished.')
 
 
+def visualize_result(arms, rewards, player_name):
+    # arms
+    df_arms = pd.DataFrame({'arm': arms, 'index': np.arange(0, len(arms)), 'value': np.ones(len(arms))})
+    df_arms_selected_ratio = pd.pivot_table(df_arms, index='index', columns='arm', values='value', fill_value=0)\
+        .apply(lambda x: x.cumsum(), axis=0)\
+        .apply(lambda x: x / x.sum() * 100, axis=1)
+    for arm in df_arms_selected_ratio.columns:
+        plt.plot(df_arms_selected_ratio[arm], label='arm {}'.format(arm))
+    plt.legend()
+    plt.title('Selected ratio of arm until each round in {}'.format(player_name))
+    plt.show()
+
+
 def main():
     bandit = BernoulliBandit([0.4, 0.5, 0.6])
 
     player = EpsGreedyPlayer()
-    player.play(30, bandit)
+    player.play(50, bandit)
     print("*** {} ***".format(player.__class__.__name__))
     print("Arms   :", player.arms)
     print("Rewards:", player.rewards)
+    visualize_result(player.arms, player.rewards, player.__class__.__name__)
 
     player = UCBPlayer()
-    player.play(30, bandit)
+    player.play(50, bandit)
     print("*** {} ***".format(player.__class__.__name__))
     print("Arms   :", player.arms)
     print("Rewards:", player.rewards)
+    visualize_result(player.arms, player.rewards, player.__class__.__name__)
 
 if __name__ == '__main__':
     main()
