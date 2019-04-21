@@ -121,6 +121,67 @@ class UCBPlayer:
         print('The game finished.')
 
 
+class IMEDPlayer:
+    def __init__(self):
+        self._arms = None
+        self._rewards = None
+
+    @property
+    def arms(self):
+        return self._arms
+
+    @property
+    def rewards(self):
+        return self._rewards
+
+    @staticmethod
+    def choice_arm(arms, rewards, num_arms):
+        """
+        Minimize the following score:
+            score =  N(t) * d(mu, mu_max) + log N(t)
+        """
+        assert len(arms) == len(rewards)
+        t = len(arms)
+        if t == 0: # Initial search
+            return 0
+        elif t < num_arms:
+            latest_arm = arms[-1]
+            return (latest_arm + 1) % num_arms # search the next arm
+
+        def kl_div(p, q):
+            assert (0 <= p <= 1) and (0 <= q <= 1)
+            if q == 0 or q == 1:
+                if p == q:
+                    return 0
+                else:
+                    return np.inf
+            d = 0
+            if p > 0:
+                d += p * np.log(p / q)
+            if p < 1:
+                d += (1 - p) * np.log((1 - p) / (1 - q))
+            return d
+        vect_kl_div = np.vectorize(kl_div, otypes=[np.float])
+
+        df = pd.DataFrame({'arm': arms, 'reward': rewards})
+        df_mean = df.groupby('arm').mean()
+        df_cnt = df.groupby('arm').count()
+        max_mean = df_mean.max()
+        df_kldiv = pd.DataFrame(vect_kl_div(df_mean, max_mean), columns=df_mean.columns, index = df_mean.index)
+        df_score = df_cnt * df_kldiv + np.log(df_cnt)
+        return df_score.sort_values('reward', ascending=True).index[0]
+
+    def play(self, num_choices, bandit):
+        self._arms = np.zeros(num_choices).astype(np.int)
+        self._rewards = np.zeros(num_choices).astype(np.int)
+        for i in range(num_choices):
+            arm = self.choice_arm(self._arms[:i], self._rewards[:i], bandit.num_arms)
+            assert 0 <= arm <= bandit.num_arms
+            self._arms[i] = arm
+            self._rewards[i] = bandit.get_rewards(arm)
+        print('The game finished.')
+
+
 def visualize_result(arms, rewards, player_name):
     # arms
     df_arms = pd.DataFrame({'arm': arms, 'index': np.arange(0, len(arms)), 'value': np.ones(len(arms))})
@@ -150,6 +211,14 @@ def main():
     print("Arms   :", player.arms)
     print("Rewards:", player.rewards)
     visualize_result(player.arms, player.rewards, player.__class__.__name__)
+
+    player = IMEDPlayer()
+    player.play(50, bandit)
+    print("*** {} ***".format(player.__class__.__name__))
+    print("Arms   :", player.arms)
+    print("Rewards:", player.rewards)
+    visualize_result(player.arms, player.rewards, player.__class__.__name__)
+
 
 if __name__ == '__main__':
     main()
