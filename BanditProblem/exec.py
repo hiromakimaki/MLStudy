@@ -154,26 +154,14 @@ def visualize_result(arms, rewards, player_name):
 def main():
     bandit = BernoulliBandit([0.4, 0.5, 0.6])
 
-    player = Player(EpsGreedyStrategy())
-    player.play(50, bandit)
-    print("*** {} ***".format(player.__class__.__name__))
-    print("Arms   :", player.arms)
-    print("Rewards:", player.rewards)
-    visualize_result(player.arms, player.rewards, player.__class__.__name__)
-
-    player = Player(UCBStrategy())
-    player.play(50, bandit)
-    print("*** {} ***".format(player.__class__.__name__))
-    print("Arms   :", player.arms)
-    print("Rewards:", player.rewards)
-    visualize_result(player.arms, player.rewards, player.__class__.__name__)
-
-    player = Player(IMEDtrategy())
-    player.play(50, bandit)
-    print("*** {} ***".format(player.__class__.__name__))
-    print("Arms   :", player.arms)
-    print("Rewards:", player.rewards)
-    visualize_result(player.arms, player.rewards, player.__class__.__name__)
+    strategy_list = [EpsGreedyStrategy(), UCBStrategy(), IMEDtrategy()]
+    for strategy in strategy_list:
+        player = Player(strategy)
+        player.play(50, bandit)
+        print("*** {} ***".format(player.__class__.__name__))
+        print("Arms   :", player.arms)
+        print("Rewards:", player.rewards)
+        visualize_result(player.arms, player.rewards, player.__class__.__name__)
 
 
 if __name__ == '__main__':
