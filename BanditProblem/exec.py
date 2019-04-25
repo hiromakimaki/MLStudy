@@ -32,34 +32,45 @@ class BernoulliBandit:
         return np.random.choice([0, 1], num, p=[1 - mu, mu])
 
 
-class EpsGreedyPlayer:
-    def __init__(self, eps=0.3):
-        assert 0 < eps < 1
+class Player:
+    def __init__(self, strategy):
         self._arms = None
         self._rewards = None
-        self._eps = eps
-    
+        self._strategy = strategy
+
     @property
     def arms(self):
         return self._arms
-    
+
     @property
     def rewards(self):
         return self._rewards
-    
-    @property
-    def eps(self):
-        return self._eps
-    
-    def set_eps(self, eps):
-        assert 0 < eps < 1
+
+    def play(self, num_choices, bandit):
+        self._arms = np.zeros(num_choices).astype(np.int)
+        self._rewards = np.zeros(num_choices).astype(np.int)
+        for i in range(num_choices):
+            arm = self._strategy.choice_arm(self._arms[:i], self._rewards[:i], bandit.num_arms, num_choices)
+            assert 0 <= arm <= bandit.num_arms
+            self._arms[i] = arm
+            self._rewards[i] = bandit.get_rewards(arm)
+        print('The game finished.')
+
+
+class Strategy:
+    def choice_arm(self, arms, rewards, num_arms, num_choices):
+        raise NotImplementedError('Please implement this method!')
+
+
+class EpsGreedyStrategy(Strategy):
+    def __init__(self, eps=0.3):
+        super().__init__()
         self._eps = eps
-    
-    @staticmethod
-    def choice_arm(arms, rewards, num_arms, num_choices, eps):
+
+    def choice_arm(self, arms, rewards, num_arms, num_choices):
         assert len(arms) == len(rewards)
         next_index = len(arms)
-        term_for_search = np.ceil(num_choices * eps).astype(np.int)
+        term_for_search = np.ceil(num_choices * self._eps).astype(np.int)
         term_for_search = np.max([term_for_search, num_arms]) # search all arms at least one time
         if next_index == 0: # Initial search
             return 0
@@ -70,34 +81,12 @@ class EpsGreedyPlayer:
         df = pd.DataFrame({'arm': arms[:term_for_search], 'reward': rewards[:term_for_search]})
         return df.groupby('arm').sum().sort_values('reward', ascending=False).index[0]
 
-    def play(self, num_choices, bandit):
-        self._arms = np.zeros(num_choices).astype(np.int)
-        self._rewards = np.zeros(num_choices).astype(np.int)
-        for i in range(num_choices):
-            arm = self.choice_arm(self._arms[:i], self._rewards[:i], bandit.num_arms, num_choices, self._eps)
-            assert 0 <= arm <= bandit.num_arms
-            self._arms[i] = arm
-            self._rewards[i] = bandit.get_rewards(arm)
-        print('The game finished.')
 
-
-class UCBPlayer:
-    def __init__(self):
-        self._arms = None
-        self._rewards = None
-
-    @property
-    def arms(self):
-        return self._arms
-
-    @property
-    def rewards(self):
-        return self._rewards
-
-    @staticmethod
-    def choice_arm(arms, rewards, num_arms):
+class UCBStrategy(Strategy):
+    def choice_arm(self, arms, rewards, num_arms, num_choices):
         """
-        score = mu + sqrt(log t / (2 N(t)))
+        Maximize the following score:
+            score = mu + sqrt(log t / (2 N(t)))
         """
         assert len(arms) == len(rewards)
         t = len(arms)
@@ -110,32 +99,9 @@ class UCBPlayer:
         df = df.groupby('arm').mean() + np.sqrt(0.5 * np.log(t) / df.groupby('arm').count())
         return df.sort_values('reward', ascending=False).index[0]
 
-    def play(self, num_choices, bandit):
-        self._arms = np.zeros(num_choices).astype(np.int)
-        self._rewards = np.zeros(num_choices).astype(np.int)
-        for i in range(num_choices):
-            arm = self.choice_arm(self._arms[:i], self._rewards[:i], bandit.num_arms)
-            assert 0 <= arm <= bandit.num_arms
-            self._arms[i] = arm
-            self._rewards[i] = bandit.get_rewards(arm)
-        print('The game finished.')
 
-
-class IMEDPlayer:
-    def __init__(self):
-        self._arms = None
-        self._rewards = None
-
-    @property
-    def arms(self):
-        return self._arms
-
-    @property
-    def rewards(self):
-        return self._rewards
-
-    @staticmethod
-    def choice_arm(arms, rewards, num_arms):
+class IMEDtrategy(Strategy):
+    def choice_arm(self, arms, rewards, num_arms, num_choices):
         """
         Minimize the following score:
             score =  N(t) * d(mu, mu_max) + log N(t)
@@ -171,16 +137,6 @@ class IMEDPlayer:
         df_score = df_cnt * df_kldiv + np.log(df_cnt)
         return df_score.sort_values('reward', ascending=True).index[0]
 
-    def play(self, num_choices, bandit):
-        self._arms = np.zeros(num_choices).astype(np.int)
-        self._rewards = np.zeros(num_choices).astype(np.int)
-        for i in range(num_choices):
-            arm = self.choice_arm(self._arms[:i], self._rewards[:i], bandit.num_arms)
-            assert 0 <= arm <= bandit.num_arms
-            self._arms[i] = arm
-            self._rewards[i] = bandit.get_rewards(arm)
-        print('The game finished.')
-
 
 def visualize_result(arms, rewards, player_name):
     # arms
@@ -198,21 +154,21 @@ def visualize_result(arms, rewards, player_name):
 def main():
     bandit = BernoulliBandit([0.4, 0.5, 0.6])
 
-    player = EpsGreedyPlayer()
+    player = Player(EpsGreedyStrategy())
     player.play(50, bandit)
     print("*** {} ***".format(player.__class__.__name__))
     print("Arms   :", player.arms)
     print("Rewards:", player.rewards)
     visualize_result(player.arms, player.rewards, player.__class__.__name__)
 
-    player = UCBPlayer()
+    player = Player(UCBStrategy())
     player.play(50, bandit)
     print("*** {} ***".format(player.__class__.__name__))
     print("Arms   :", player.arms)
     print("Rewards:", player.rewards)
     visualize_result(player.arms, player.rewards, player.__class__.__name__)
 
-    player = IMEDPlayer()
+    player = Player(IMEDtrategy())
     player.play(50, bandit)
     print("*** {} ***".format(player.__class__.__name__))
     print("Arms   :", player.arms)
