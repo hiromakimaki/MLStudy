@@ -72,6 +72,12 @@ class EpsGreedyStrategy(Strategy):
         self._eps = eps
 
     def choice_arm(self, arms, rewards, num_arms, num_choices):
+        """
+        First step: T * eps times
+            Choose all arms equally.
+        Second step: T * (1 - eps) times
+            Choose the arm which gives the maximum reward in the first step.
+        """
         assert len(arms) == len(rewards)
         next_index = len(arms)
         term_for_search = np.ceil(num_choices * self._eps).astype(np.int)
