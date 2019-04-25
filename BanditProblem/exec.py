@@ -142,6 +142,27 @@ class IMEDtrategy(Strategy):
         return df_score.sort_values('reward', ascending=True).index[0]
 
 
+class SoftMaxStrategy(Strategy):
+    def __init__(self, tau=0.3):
+        self._tau = tau
+
+    def choice_arm(self, arms, rewards, num_arms, num_choices):
+        """
+        Choose the i-th arm with the probability proportional to exp(mu_i/tau)
+        """
+        assert len(arms) == len(rewards)
+        t = len(arms)
+        if t == 0: # Initial search
+            return 0
+        elif t < num_arms:
+            latest_arm = arms[-1]
+            return (latest_arm + 1) % num_arms # search the next arm
+        # softmax function
+        probs = np.exp(np.arange(num_arms)/self._tau)
+        probs = probs / probs.sum()
+        return np.random.choice(list(range(num_arms)), p=probs)
+
+
 def visualize_result(arms, rewards, player_name):
     # arms
     df_arms = pd.DataFrame({'arm': arms, 'index': np.arange(0, len(arms)), 'value': np.ones(len(arms))})
@@ -158,7 +179,7 @@ def visualize_result(arms, rewards, player_name):
 def main():
     bandit = BernoulliBandit([0.4, 0.5, 0.6])
 
-    strategy_list = [EpsGreedyStrategy(), UCBStrategy(), IMEDtrategy()]
+    strategy_list = [EpsGreedyStrategy(), UCBStrategy(), IMEDtrategy(), SoftMaxStrategy()]
     for strategy in strategy_list:
         player = Player(strategy)
         player.play(50, bandit)
