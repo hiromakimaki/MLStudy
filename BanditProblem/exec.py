@@ -46,6 +46,10 @@ class Player:
     def rewards(self):
         return self._rewards
 
+    @property
+    def strategy(self):
+        return self._strategy
+
     def play(self, num_choices, bandit):
         self._arms = np.zeros(num_choices).astype(np.int)
         self._rewards = np.zeros(num_choices).astype(np.int)
@@ -158,10 +162,10 @@ def main():
     for strategy in strategy_list:
         player = Player(strategy)
         player.play(50, bandit)
-        print("*** {} ***".format(player.__class__.__name__))
+        print("*** {} ***".format(player.strategy.__class__.__name__))
         print("Arms   :", player.arms)
         print("Rewards:", player.rewards)
-        visualize_result(player.arms, player.rewards, player.__class__.__name__)
+        visualize_result(player.arms, player.rewards, player.strategy.__class__.__name__)
 
 
 if __name__ == '__main__':
