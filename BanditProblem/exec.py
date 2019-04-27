@@ -149,7 +149,7 @@ class IMEDtrategy(Strategy):
 
 
 class SoftMaxStrategy(Strategy):
-    def __init__(self, tau=0.3):
+    def __init__(self, tau=1):
         self._tau = tau
 
     def choice_arm(self, arms, rewards, num_arms, num_choices):
@@ -157,14 +157,13 @@ class SoftMaxStrategy(Strategy):
         Choose the i-th arm with the probability proportional to exp(mu_i/tau)
         """
         assert len(arms) == len(rewards)
-        t = len(arms)
-        if t == 0: # Initial search
-            return 0
-        elif t < num_arms:
-            latest_arm = arms[-1]
-            return (latest_arm + 1) % num_arms # search the next arm
+        df = pd.DataFrame({'arm': arms, 'reward': rewards})
+        mu = np.zeros(num_arms)
+        for arm in range(num_arms):
+            target_df = df[df['arm'] == arm]
+            mu[arm] = target_df['reward'].mean() if target_df.size > 0 else 0
         # softmax function
-        probs = np.exp(np.arange(num_arms)/self._tau)
+        probs = np.exp(mu/self._tau)
         probs = probs / probs.sum()
         return np.random.choice(list(range(num_arms)), p=probs)
 
