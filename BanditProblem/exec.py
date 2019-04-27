@@ -169,6 +169,21 @@ class SoftMaxStrategy(Strategy):
         return np.random.choice(list(range(num_arms)), p=probs)
 
 
+class BernoulliThompsonSamplingStrategy(Strategy):
+    def __init__(self, alpha=1, beta=1):
+        self._alpha = alpha
+        self._beta = beta
+
+    def choice_arm(self, arms, rewards, num_arms, num_choices):
+        df = pd.DataFrame({'arm': arms, 'reward': rewards})
+        mu = np.zeros(num_arms)
+        for arm in range(num_arms):
+            n = df[df['arm'] == arm].size
+            m = df[df['arm'] == arm]['reward'].sum()
+            mu[arm] = np.random.beta(self._alpha + m, self._beta + n - m)
+        return mu.argmax()
+
+
 def visualize_result(arms, rewards, player_name):
     # arms
     df_arms = pd.DataFrame({'arm': arms, 'index': np.arange(0, len(arms)), 'value': np.ones(len(arms))})
@@ -185,10 +200,10 @@ def visualize_result(arms, rewards, player_name):
 def main():
     bandit = BernoulliBandit([0.4, 0.5, 0.6])
 
-    strategy_list = [EpsGreedyStrategy(), UCBStrategy(), IMEDtrategy(), SoftMaxStrategy()]
+    strategy_list = [EpsGreedyStrategy(), UCBStrategy(), IMEDtrategy(), SoftMaxStrategy(), BernoulliThompsonSamplingStrategy()]
     for strategy in strategy_list:
         player = Player(strategy)
-        player.play(50, bandit)
+        player.play(100, bandit)
         print("*** {} ***".format(player.strategy.__class__.__name__))
         print("Arms   :", player.arms)
         print("Rewards:", player.rewards)
