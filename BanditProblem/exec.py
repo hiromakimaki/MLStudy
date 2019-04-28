@@ -6,7 +6,7 @@ Usage:
   python exec.py
 
 Requirements:
-  numpy, pandas
+  numpy, pandas, matplotlib
 
 Reference:
   Chapter 3 of "バンディット問題の理論とアルゴリズム（機械学習プロフェッショナルシリーズ）"(https://www.kspub.co.jp/book/detail/1529175.html)
