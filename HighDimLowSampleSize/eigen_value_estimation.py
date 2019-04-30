@@ -64,7 +64,7 @@ def main():
     plt.xlabel('d')
     plt.ylabel('ratio of estimated eigenvalue and true eigenvalue')
     plt.xscale('log')
-    plt.legend(loc='upper right')
+    plt.legend(loc='upper left')
     plt.show()
 
 
