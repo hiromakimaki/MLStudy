@@ -31,7 +31,7 @@ def get_sample_top_k_eigenvalues(mat_cov, n, k):
     X = np.random.multivariate_normal(np.zeros(d), mat_cov, n).T
     P = np.eye(n) - np.ones((n,n)) / n
     XP = np.dot(X, P)
-    mat_dual_cov = np.dot(XP, XP.T) / (n - 1)
+    mat_dual_cov = np.dot(XP.T, XP) / (n - 1)
     eigvals, _ = eigsh(mat_dual_cov, k=k)
     eigvals = - (np.sort(- eigvals)) # descending order
     # Noise reduction method
