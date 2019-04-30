@@ -1,6 +1,12 @@
 """
 Summary:
-    (TODO: Write this!)
+    Compare estimation methods of eigenvalues of covariance matrix with high dimension.
+    The methods are:
+        1) Simple method
+            Calculate the sample covariance matrix, then calculate its eigenvalues.
+            -> The estimated values tend to be overestimated.
+        2) Noise reduction method
+            (See the reference)
 
 Usage:
     python eigen_value_estimation.py
@@ -9,7 +15,7 @@ Requirements:
     scipy, numpy, pandas, matplotlib
 
 Reference:
-    chapter 3 of "高次元の統計学"(https://www.kyoritsu-pub.co.jp/bookdetail/9784320112636)
+    chapter 4 of "高次元の統計学"(https://www.kyoritsu-pub.co.jp/bookdetail/9784320112636)
 """
 
 from scipy.sparse.linalg import eigsh
