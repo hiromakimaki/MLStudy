@@ -27,6 +27,7 @@ def get_sample_top_k_eigenvalues(mat_cov, n, k):
     XP = np.dot(X, P)
     mat_dual_cov = np.dot(XP, XP.T) / (n - 1)
     eigvals, _ = eigsh(mat_dual_cov, k=k)
+    eigvals = - (np.sort(- eigvals)) # descending order
     return eigvals
 
 
@@ -53,12 +54,10 @@ def main():
         mat_cov = generate_mat_cov(d, eig_1, eig_2)
         est_eigvals = np.zeros((n_simulation_iters, k))
         for j in range(n_simulation_iters):
-            tmp_est_eigvals = get_sample_top_k_eigenvalues(mat_cov, n, k)
-            tmp_est_eigvals.sort()
-            est_eigvals[j,:] = tmp_est_eigvals
+            est_eigvals[j,:] = get_sample_top_k_eigenvalues(mat_cov, n, k)
         est_eigvals = est_eigvals.mean(axis=0)
-        eig_1_ratios[i] = est_eigvals[-1] / eig_1
-        eig_2_ratios[i] = est_eigvals[-2] / eig_2
+        eig_1_ratios[i] = est_eigvals[0] / eig_1
+        eig_2_ratios[i] = est_eigvals[1] / eig_2
         print('Fin. {}-th loop'.format(i))
     plt.plot(ds, eig_1_ratios, label='1st eigval ratio')
     plt.plot(ds, eig_2_ratios, label='2nd eigval ratio')
