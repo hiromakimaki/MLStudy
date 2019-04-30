@@ -44,7 +44,8 @@ def generate_mat_cov(d, eig_1, eig_2):
 
 def main():
     n_simulation_iters = 20
-    ds = 2**np.array([5, 6, 7, 8, 9])
+    ts = np.array([5, 6, 7, 8, 9])
+    ds = 2**ts
     eig_1_ratios = np.zeros(ds.shape[0])
     eig_2_ratios = np.zeros(ds.shape[0])
     noise_reduced_eig_1_ratios = np.zeros(ds.shape[0])
@@ -69,14 +70,14 @@ def main():
         eig_2_ratios[i] = est_eigvals[1] / eig_2
         noise_reduced_eig_1_ratios[i] = noise_reduced_eigvals[0] / eig_1
         noise_reduced_eig_2_ratios[i] = noise_reduced_eigvals[1] / eig_2
-        print('Fin. {}-th loop'.format(i))
-    plt.plot(ds, eig_1_ratios, label=r'$\hat \lambda_{(1)} / \lambda_{(1)}$')
-    plt.plot(ds, eig_2_ratios, label=r'$\hat \lambda_{(2)} / \lambda_{(2)}$')
-    plt.plot(ds, noise_reduced_eig_1_ratios, label=r'$\tilde \lambda_{(1)} / \lambda_{(1)}$')
-    plt.plot(ds, noise_reduced_eig_2_ratios, label=r'$\tilde \lambda_{(1)} / \lambda_{(1)}$')
-    plt.xlabel('d')
-    plt.ylabel('ratio of estimated eigenvalue and true eigenvalue')
-    plt.xscale('log')
+        print('Fin. {}-th loop'.format(i+1))
+    plt.plot(ts, eig_1_ratios, label=r'$\hat \lambda_{(1)} / \lambda_{(1)}$', marker='^', color='blue')
+    plt.plot(ts, eig_2_ratios, label=r'$\hat \lambda_{(2)} / \lambda_{(2)}$', marker='^', color='blue', linestyle='dashed')
+    plt.plot(ts, noise_reduced_eig_1_ratios, label=r'$\tilde \lambda_{(1)} / \lambda_{(1)}$ (NR)', marker='o', color='green')
+    plt.plot(ts, noise_reduced_eig_2_ratios, label=r'$\tilde \lambda_{(2)} / \lambda_{(2)}$ (NR)', marker='o', color='green', linestyle='dashed')
+    plt.xlabel(r'$\log_2 d$')
+    plt.ylabel('ratio')
+    plt.title('ratio of estimated eigenvalue and true eigenvalue')
     plt.legend(loc='upper left')
     plt.show()
 
