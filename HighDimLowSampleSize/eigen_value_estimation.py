@@ -28,7 +28,10 @@ def get_sample_top_k_eigenvalues(mat_cov, n, k):
     mat_dual_cov = np.dot(XP, XP.T) / (n - 1)
     eigvals, _ = eigsh(mat_dual_cov, k=k)
     eigvals = - (np.sort(- eigvals)) # descending order
-    return eigvals
+    # Noise reduction method
+    denominators = n - 1 - np.arange(1, k+1)
+    noise_reduced_eigvals = eigvals - (np.trace(mat_dual_cov) - eigvals.cumsum()) / denominators
+    return eigvals, noise_reduced_eigvals
 
 
 def generate_mat_cov(d, eig_1, eig_2):
@@ -40,10 +43,12 @@ def generate_mat_cov(d, eig_1, eig_2):
 
 
 def main():
-    n_simulation_iters = 10
-    ds = 2**np.array([6, 7, 8, 9, 10])
+    n_simulation_iters = 20
+    ds = 2**np.array([5, 6, 7, 8, 9])
     eig_1_ratios = np.zeros(ds.shape[0])
     eig_2_ratios = np.zeros(ds.shape[0])
+    noise_reduced_eig_1_ratios = np.zeros(ds.shape[0])
+    noise_reduced_eig_2_ratios = np.zeros(ds.shape[0])
     for i, d in enumerate(ds):
         # Constants
         n = np.ceil(d**(1/3)).astype(np.int)
@@ -53,14 +58,22 @@ def main():
         # Simulation
         mat_cov = generate_mat_cov(d, eig_1, eig_2)
         est_eigvals = np.zeros((n_simulation_iters, k))
+        noise_reduced_eigvals = np.zeros((n_simulation_iters, k))
         for j in range(n_simulation_iters):
-            est_eigvals[j,:] = get_sample_top_k_eigenvalues(mat_cov, n, k)
+            tmp_est_eigvals, tmp_noise_reduced_eigvals = get_sample_top_k_eigenvalues(mat_cov, n, k)
+            est_eigvals[j,:] = tmp_est_eigvals
+            noise_reduced_eigvals[j,:] = tmp_noise_reduced_eigvals
         est_eigvals = est_eigvals.mean(axis=0)
+        noise_reduced_eigvals = noise_reduced_eigvals.mean(axis=0)
         eig_1_ratios[i] = est_eigvals[0] / eig_1
         eig_2_ratios[i] = est_eigvals[1] / eig_2
+        noise_reduced_eig_1_ratios[i] = noise_reduced_eigvals[0] / eig_1
+        noise_reduced_eig_2_ratios[i] = noise_reduced_eigvals[1] / eig_2
         print('Fin. {}-th loop'.format(i))
-    plt.plot(ds, eig_1_ratios, label='1st eigval ratio')
-    plt.plot(ds, eig_2_ratios, label='2nd eigval ratio')
+    plt.plot(ds, eig_1_ratios, label=r'$\hat \lambda_{(1)} / \lambda_{(1)}$')
+    plt.plot(ds, eig_2_ratios, label=r'$\hat \lambda_{(2)} / \lambda_{(2)}$')
+    plt.plot(ds, noise_reduced_eig_1_ratios, label=r'$\tilde \lambda_{(1)} / \lambda_{(1)}$')
+    plt.plot(ds, noise_reduced_eig_2_ratios, label=r'$\tilde \lambda_{(1)} / \lambda_{(1)}$')
     plt.xlabel('d')
     plt.ylabel('ratio of estimated eigenvalue and true eigenvalue')
     plt.xscale('log')
