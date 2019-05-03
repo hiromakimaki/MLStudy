@@ -27,6 +27,7 @@ DataSource:
             "NL-..."
 """
 
+from scipy.sparse.linalg import eigsh
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -43,8 +44,42 @@ def load_data():
     return df
 
 
+def get_top_k_eigenvalues(X, k):
+    _, n = X.shape
+    P = np.eye(n) - np.ones((n,n)) / n
+    XP = np.dot(X, P)
+    mat_dual_cov = np.dot(XP.T, XP) / (n - 1)
+    eigvals, eigvecs = eigsh(mat_dual_cov, k=k)
+    # Sorting by eigenvalue-descending order
+    sorted_eigvals = - (np.sort(- eigvals))
+    sorted_eigvecs = np.zeros(eigvecs.shape)
+    before_eigval = None
+    sort_completed_index = 0
+    for eigv in sorted_eigvals:
+        if before_eigval == eigv:
+            continue
+        indices = np.where(eigvals == eigv)[0]
+        sorted_eigvecs[:, sort_completed_index:(sort_completed_index + len(indices))] = eigvecs[:, indices]
+        sort_completed_index = sort_completed_index + len(indices)
+        before_eigval = eigv
+    # Noise reduction method
+    denominators = n - 1 - np.arange(1, k+1)
+    noise_reduced_sorted_eigvals = sorted_eigvals - (np.trace(mat_dual_cov) - sorted_eigvals.cumsum()) / denominators
+    return noise_reduced_sorted_eigvals, sorted_eigvecs
+
+
+def get_top_k_pca_score(df, k):
+    _, n = df.shape
+    _, eigvecs = get_top_k_eigenvalues(df.values, k)
+    return np.sqrt(n) * eigvecs
+
+
 def main():
+    k = 2
     df = load_data()
+    pca_score = get_top_k_pca_score(df, k)
+    plt.scatter(pca_score[:, 0], pca_score[:, 1])
+    plt.show()
 
 
 if __name__ == '__main__':
