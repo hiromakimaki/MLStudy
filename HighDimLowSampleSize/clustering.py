@@ -37,6 +37,14 @@ from mpl_toolkits.mplot3d import Axes3D
 from argparse import ArgumentParser
 
 
+CONFIG = [
+    {'regex': '^SQ-', 'marker': 'o'},
+    {'regex': '^COID-', 'marker': '^'},
+    {'regex': '^NL-', 'marker': '*'},
+    {'regex': '^SMCL-', 'marker': 's'}
+]
+
+
 def load_data():
     df_gene = pd.read_excel('pnas_191502998_DatasetA_12600gene.xls')
     df_desc = pd.read_excel('pnas_191502998_DatasetA_3312genesetdescription_sd50.xls', header=None)
@@ -84,7 +92,11 @@ def visualize_2d():
     df = df.filter(regex='^(SQ|COID|NL)-') # Filter out SCLC cases.
     print('The shape of target data frame for `k = 2`: ', df.shape) # df.shape is (3312, 58)
     pca_score = get_top_k_pca_score(df, k)
-    plt.scatter(pca_score[:, 0], pca_score[:, 1])
+    df_pca_score = pd.DataFrame(pca_score, index = df.columns)
+    for cfg in CONFIG:
+        df_pca_score_target = df_pca_score.filter(regex=cfg['regex'], axis=0)
+        pca_score_target = df_pca_score_target.values
+        plt.scatter(pca_score_target[:, 0], pca_score_target[:, 1], marker=cfg['marker'])
     plt.show()
 
 
@@ -92,10 +104,14 @@ def visualize_3d():
     k = 3
     df = load_data()
     print('The shape of target data frame for `k = 3`: ', df.shape) # df.shape is (3312, 64)
-    pca_score = get_top_k_pca_score(df, k)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(pca_score[:, 0], pca_score[:, 1], pca_score[:, 2])
+    pca_score = get_top_k_pca_score(df, k)
+    df_pca_score = pd.DataFrame(pca_score, index = df.columns)
+    for cfg in CONFIG:
+        df_pca_score_target = df_pca_score.filter(regex=cfg['regex'], axis=0)
+        pca_score_target = df_pca_score_target.values
+        ax.scatter(pca_score_target[:, 0], pca_score_target[:, 1], pca_score_target[:, 2], marker=cfg['marker'])
     plt.show()
 
 
