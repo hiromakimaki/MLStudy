@@ -25,12 +25,16 @@ DataSource:
             "COID-..."
         - normal lung (n = 17)
             "NL-..."
+        - SCLC (n = 6)
+            "SMCL-..."
 """
 
 from scipy.sparse.linalg import eigsh
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from argparse import ArgumentParser
 
 
 def load_data():
@@ -39,8 +43,8 @@ def load_data():
     key_columns = ['probe set', 'gene']
     df_desc.columns = key_columns
     df = pd.merge(df_desc, df_gene, how='inner', on=key_columns)
-    df = df.filter(regex='^(SQ|COID|NL)-')
-    print('The shape of data frame: ', df.shape) # df.shape is (3312, 58)
+    df = df.filter(regex='^(SQ|COID|NL|SMCL)-')
+    print('The shape of data frame: ', df.shape) # df.shape is (3312, 64)
     return df
 
 
@@ -74,13 +78,39 @@ def get_top_k_pca_score(df, k):
     return np.sqrt(n) * eigvecs
 
 
-def main():
+def visualize_2d():
     k = 2
     df = load_data()
+    df = df.filter(regex='^(SQ|COID|NL)-') # Filter out SCLC cases.
+    print('The shape of target data frame for `k = 2`: ', df.shape) # df.shape is (3312, 58)
     pca_score = get_top_k_pca_score(df, k)
     plt.scatter(pca_score[:, 0], pca_score[:, 1])
     plt.show()
 
 
+def visualize_3d():
+    k = 3
+    df = load_data()
+    print('The shape of target data frame for `k = 3`: ', df.shape) # df.shape is (3312, 64)
+    pca_score = get_top_k_pca_score(df, k)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(pca_score[:, 0], pca_score[:, 1], pca_score[:, 2])
+    plt.show()
+
+
+def main(args):
+    if args.mode == '2d':
+        visualize_2d()
+    else:
+        visualize_3d()
+
+
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument('-m', dest='mode', choices=['2d', '3d'], default='2d')
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
-    main()
+    main(parse_args())
