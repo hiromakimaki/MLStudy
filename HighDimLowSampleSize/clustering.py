@@ -1,9 +1,14 @@
 """
 Summary:
-    (TODO: Write this.)
+    Execute cluster analysis with PCA for high-dimensional low-sample-size real data.
 
 Usage:
-    (TODO:  Write this.)
+    python clustering.py -m ${mode}
+        mode (optional):
+            Specify either '2d' or '3d'.
+            Default is '2d'.
+                2d: 3 class data, 2 dimensional scores
+                3d: 4 class data, 3 dimensional scores
 
 Requirements:
     numpy, pandas, matplotlib
