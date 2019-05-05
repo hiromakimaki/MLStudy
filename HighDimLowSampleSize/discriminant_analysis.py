@@ -39,6 +39,25 @@ class DiscriminantFunction:
         return np.dot(XP, XP.T) / (n - 1)
 
 
+class DistanceBasedFunction(DiscriminantFunction):
+    @staticmethod
+    def func(class_0_data, class_1_data, target_data):
+        assert class_0_data.shape[0] == class_1_data.shape[0]
+        assert class_0_data.shape[0] == target_data.shape[0]
+        n_0 = class_0_data.shape[1]
+        n_1 = class_1_data.shape[1]
+
+        mean_0 = class_0_data.mean(axis=1)
+        mean_1 = class_1_data.mean(axis=1)
+
+        cov_0 = DiscriminantFunction.calc_cov(class_0_data)
+        cov_1 = DiscriminantFunction.calc_cov(class_1_data)
+
+        Y = np.dot((target_data - ((mean_0 + mean_1)/2).reshape((-1, 1))).T, mean_1 - mean_0)
+        Y += (np.trace(cov_1)/n_1 - np.trace(cov_0)/n_0) / 2
+        return Y
+
+
 class GeometricQuadraticFunction(DiscriminantFunction):
     @staticmethod
     def func(class_0_data, class_1_data, target_data):
@@ -95,6 +114,7 @@ def discriminant_analysis(discriminant_function):
 
 
 def main():
+    discriminant_analysis(DistanceBasedFunction)
     discriminant_analysis(GeometricQuadraticFunction)
 
 
