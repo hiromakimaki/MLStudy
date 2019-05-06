@@ -101,10 +101,30 @@ def sampling_from_same_mean_diff_cov(d, n_train, n_test):
     return train_0, train_1, test_0, test_1
 
 
-def discriminant_analysis(discriminant_function):
+def sampling_from_diff_mean_same_cov(d, n_train, n_test):
+    n_train_0 = n_train // 2
+    n_train_1 = n_train - n_train_0
+    n_test_0 = n_test // 2
+    n_test_1 = n_test - n_test_0
+
+    cov_0 = cov_1 = np.eye(d)
+    mean_0 = np.zeros(d)
+    mean_1 = np.zeros(d)
+    mean_1[:np.ceil(d**(3/5)).astype(np.int)] = 1
+
+    train_0 = np.random.multivariate_normal(mean_0, cov_0, n_train_0).T
+    train_1 = np.random.multivariate_normal(mean_1, cov_1, n_train_1).T
+
+    test_0 = np.random.multivariate_normal(mean_0, cov_0, n_test_0).T
+    test_1 = np.random.multivariate_normal(mean_1, cov_1, n_test_1).T
+
+    return train_0, train_1, test_0, test_1
+
+
+def discriminant_analysis(discriminant_function, sampling_method):
     d = 2**10
     n_train, n_test = 50, 50
-    train_0, train_1, test_0, test_1 = sampling_from_same_mean_diff_cov(d, n_train, n_test)
+    train_0, train_1, test_0, test_1 = sampling_method(d, n_train, n_test)
     func_0 = discriminant_function.func(train_0, train_1, test_0)
     func_1 = discriminant_function.func(train_0, train_1, test_1)
     func_values = np.concatenate([func_0, func_1])
@@ -114,8 +134,10 @@ def discriminant_analysis(discriminant_function):
 
 
 def main():
-    discriminant_analysis(DistanceBasedFunction)
-    discriminant_analysis(GeometricQuadraticFunction)
+    discriminant_analysis(DistanceBasedFunction, sampling_from_diff_mean_same_cov)
+    discriminant_analysis(GeometricQuadraticFunction, sampling_from_diff_mean_same_cov)
+    discriminant_analysis(DistanceBasedFunction, sampling_from_same_mean_diff_cov)
+    discriminant_analysis(GeometricQuadraticFunction, sampling_from_same_mean_diff_cov)
 
 
 if __name__=='__main__':
