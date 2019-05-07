@@ -39,6 +39,26 @@ class DiscriminantFunction:
         return np.dot(XP, XP.T) / (n - 1)
 
 
+class DiagonalLinearFunction(DiscriminantFunction):
+    @staticmethod
+    def func(class_0_data, class_1_data, target_data):
+        assert class_0_data.shape[0] == class_1_data.shape[0]
+        assert class_0_data.shape[0] == target_data.shape[0]
+        n_0 = class_0_data.shape[1]
+        n_1 = class_1_data.shape[1]
+
+        mean_0 = class_0_data.mean(axis=1)
+        mean_1 = class_1_data.mean(axis=1)
+
+        cov_0 = DiscriminantFunction.calc_cov(class_0_data)
+        cov_1 = DiscriminantFunction.calc_cov(class_1_data)
+        cov = ((n_0 - 1) * cov_0 + (n_1 - 1) * cov_1) / (n_0 + n_1 - 2)
+        inv_diag_cov = np.diag(1/np.diag(cov))
+
+        Y = np.dot((target_data - ((mean_0 + mean_1)/2).reshape((-1, 1))).T, np.dot(inv_diag_cov, mean_1 - mean_0))
+        return Y
+
+
 class DistanceBasedFunction(DiscriminantFunction):
     @staticmethod
     def func(class_0_data, class_1_data, target_data):
@@ -136,8 +156,10 @@ def discriminant_analysis(discriminant_function, sampling_method):
 def main():
     discriminant_analysis(DistanceBasedFunction, sampling_from_diff_mean_same_cov)
     discriminant_analysis(GeometricQuadraticFunction, sampling_from_diff_mean_same_cov)
+    discriminant_analysis(DiagonalLinearFunction, sampling_from_diff_mean_same_cov)
     discriminant_analysis(DistanceBasedFunction, sampling_from_same_mean_diff_cov)
     discriminant_analysis(GeometricQuadraticFunction, sampling_from_same_mean_diff_cov)
+    discriminant_analysis(DiagonalLinearFunction, sampling_from_same_mean_diff_cov)
 
 
 if __name__=='__main__':
