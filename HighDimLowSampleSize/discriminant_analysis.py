@@ -75,7 +75,7 @@ class DiagonalQuadraticFunction(DiscriminantFunction):
 
         Y = np.diag(np.dot((target_data - mean_0.reshape((-1, 1))).T, np.dot(inv_diag_cov_0, target_data - mean_0.reshape((-1, 1)))))
         Y = Y - np.diag(np.dot((target_data - mean_1.reshape((-1, 1))).T, np.dot(inv_diag_cov_1, target_data - mean_1.reshape((-1, 1)))))
-        Y = Y - np.log(np.linalg.det(cov_1) / np.linalg.det(cov_0))
+        Y = Y - np.log(np.linalg.det(inv_diag_cov_1) / np.linalg.det(inv_diag_cov_0))
         return Y
 
 
