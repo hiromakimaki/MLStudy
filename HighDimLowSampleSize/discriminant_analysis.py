@@ -1,9 +1,20 @@
 """
 Summary:
-    (TODO: write this.)
+    Execute (high dimensional and low sample size) discriminant analysis with some methods.
 
 Usage:
-    (TODO: write this.)
+    python discriminant_analysis.py -m ${method} -c ${case}
+        method (optional):
+            Specify either 'dbda', 'gqda', 'dlda' or 'dqda'.
+            Default is 'dbda'.
+                dbda: Distance-based discriminant analysis
+                gqda: Geometrical quadratic discriminant analysis
+                dlda: Diagonal linear discriminant analysis
+                dqda: Diagonal quadratic discriminant analysis
+        case (optional):
+            Specify either 1 or 2.
+            This means which experiment case is tried.
+            Default is '1'.
 
 Requirements:
     numpy, pandas, matplotlib
@@ -15,6 +26,7 @@ Reference:
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from argparse import ArgumentParser
 
 
 np.random.seed(0)
@@ -173,16 +185,33 @@ def discriminant_analysis(discriminant_function, sampling_method):
     plt.show()
 
 
-def main():
-    discriminant_analysis(DistanceBasedFunction, sampling_from_diff_mean_same_cov)
-    discriminant_analysis(GeometricQuadraticFunction, sampling_from_diff_mean_same_cov)
-    discriminant_analysis(DiagonalLinearFunction, sampling_from_diff_mean_same_cov)
-    discriminant_analysis(DiagonalQuadraticFunction, sampling_from_diff_mean_same_cov)
-    discriminant_analysis(DistanceBasedFunction, sampling_from_same_mean_diff_cov)
-    discriminant_analysis(GeometricQuadraticFunction, sampling_from_same_mean_diff_cov)
-    discriminant_analysis(DiagonalLinearFunction, sampling_from_same_mean_diff_cov)
-    discriminant_analysis(DiagonalQuadraticFunction, sampling_from_same_mean_diff_cov)
+def main(args):
+    # Sampling function
+    sampling_function = None
+    if args.case == '1':
+        sampling_function = sampling_from_diff_mean_same_cov
+    else:
+        sampling_function = sampling_from_same_mean_diff_cov
+    # Discriminant function
+    discriminant_function = None
+    if args.method == 'dbda':
+        discriminant_function = DistanceBasedFunction
+    elif args.method == 'gqda':
+        discriminant_function = GeometricQuadraticFunction
+    elif args.method == 'dlda':
+        discriminant_function = DiagonalLinearFunction
+    else:
+        discriminant_function = DiagonalQuadraticFunction
+    # Execute discriminant analysis
+    discriminant_analysis(discriminant_function, sampling_function)
+
+
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument('-m', dest='method', choices=['dbda', 'gqda', 'dlda', 'dqda'], default='dbda')
+    parser.add_argument('-c', dest='case', choices=['1', '2'], default='1')
+    return parser.parse_args()
 
 
 if __name__=='__main__':
-    main()
+    main(parse_args())
