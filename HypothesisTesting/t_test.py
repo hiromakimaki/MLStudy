@@ -10,21 +10,21 @@ def one_sample_t_test():
         x ~ N(3, 1)
         Null hypothesis: `mu = 3`
     """
+    n_iter = 1000
     n = 50
-    xs = np.random.normal(3, 1, n)
-
+    alpha = 0.05
+    print('Alpha: {}'.format(alpha))
     mu_null_hyp = 3
-    t_value = np.sqrt(n) * (np.mean(xs) - mu_null_hyp) / np.std(xs)
-    print(np.mean(xs))
-    print('T-value: {}'.format(t_value))
-    
-    alpha = 0.05 / 2
-    lower, upper = stats.t.ppf(q=[alpha, 1-alpha], df=n)
-    print(lower, upper)
-    if lower <= t_value <= upper:
-        print('Not rejected.')
-    else:
-        print('Rejected.')
+    t_values = np.zeros(n_iter)
+    rejected = np.zeros(n_iter)
+    for i in range(n_iter):
+        xs = np.random.normal(3, 1, n)
+        t_value = np.sqrt(n) * (np.mean(xs) - mu_null_hyp) / np.std(xs)
+        t_values[i] = t_value
+        lower, upper = stats.t.ppf(q=[alpha/2, 1-alpha/2], df=n)
+        if t_value < lower or upper < t_value:
+            rejected[i] = 1
+    print('Null hypothesis rejected: {} / {}'.format(rejected.sum(), len(rejected)))
 
 
 def two_sample_t_test():
