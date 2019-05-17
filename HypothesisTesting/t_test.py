@@ -46,7 +46,7 @@ def two_sample_t_test():
         ys = np.random.normal(10, 1, ny)    
         t_value = (np.mean(xs) - np.mean(ys)) / np.sqrt((1/nx + 1/ny) * ((nx - 1) * (np.std(xs)**2) + (ny - 1) * (np.std(ys)**2)) / (nx + ny - 2))
         t_values[i] = t_value
-        lower, upper = stats.t.ppf(q=[alpha/2, 1-alpha/2], df=n)
+        lower, upper = stats.t.ppf(q=[alpha/2, 1-alpha/2], df=(nx + ny - 2))
         if t_value < lower or upper < t_value:
             rejected[i] = 1
     print('Null hypothesis rejected: {} / {}'.format(rejected.sum(), len(rejected)))
