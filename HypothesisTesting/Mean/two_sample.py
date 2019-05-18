@@ -52,6 +52,15 @@ class CaseSameMeanSameVar(TestCase):
         return np.random.normal(3, 1, sample_size)
 
 
+class CaseSameMeanDiffVar(TestCase):
+
+    def sampling_1(self, sample_size):
+        return np.random.normal(3, 1, sample_size)
+
+    def sampling_2(self, sample_size):
+        return np.random.normal(3, 2, sample_size)
+
+
 class CaseDiffMeanSameVar(TestCase):
 
     def sampling_1(self, sample_size):
@@ -72,6 +81,8 @@ def simulation(test_case, n_iter=1000):
 
 def main():
     rejected = simulation(CaseSameMeanSameVar())
+    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
+    rejected = simulation(CaseSameMeanDiffVar())
     print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
     rejected = simulation(CaseDiffMeanSameVar())
     print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
