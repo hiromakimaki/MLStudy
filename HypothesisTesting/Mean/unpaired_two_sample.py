@@ -7,7 +7,7 @@ np.random.seed(0)
 def t_test(xs, ys, alpha):
     """
     Summary:
-        Execute two-sample two-sided t-test.
+        Execute unpaired two-sample two-sided t-test.
         It is supposed that the values of (unknown) variances of the two samples are same.
     Return value:
         0: The null hypothesis is NOT rejected.
@@ -26,7 +26,7 @@ def t_test(xs, ys, alpha):
 def welch_t_test(xs, ys, alpha):
     """
     Summary:
-        Execute two-sample two-sided Welch's t-test.
+        Execute unpaired two-sample two-sided Welch's t-test.
         Same variance assumption is NOT supposed.
     Return value:
         0: The null hypothesis is NOT rejected.
