@@ -8,6 +8,21 @@ from scipy import stats
 np.random.seed(0)
 
 
+def shapiro_wilk_test(xs, alpha):
+    n = len(xs)
+    ordered_xs = np.sort(xs)
+    # Estimate coefs
+    ordered_samples = np.apply_along_axis(np.sort, 0, np.random.multivariate_normal(np.zeros(n), np.eye(n), n+1000).T)
+    m = np.apply_along_axis(np.mean, 1, ordered_samples)
+    inv_v = np.linalg.inv(np.cov(ordered_samples))
+    a = np.dot(m, inv_v)
+    a = a / np.linalg.norm(a)
+    # Calc statistics
+    W = (np.sum(a * ordered_xs)**2) / (n * np.var(ordered_xs))
+    # TODO: I do not still understand the criteria by which the null hypothesis should be rejected or not...
+    return W
+
+
 def birnbaum_tingey_test(xs, alpha):
     """
     See Corollary 3.5 in chapter 4 in the reference book.
@@ -80,5 +95,25 @@ def main():
     print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
 
 
+def simulation_sw(test_case, n_iter=50):
+    ws = np.zeros(n_iter)
+    for i in range(n_iter):
+        data = test_case.sampling(test_case.sample_size)
+        ws[i] = shapiro_wilk_test(data, test_case.alpha)
+    return ws
+
+
+def main_sw():
+    ws = simulation_sw(NormalCase())
+    print('W statistics: {}'.format(ws.mean()))
+    ws = simulation_sw(NormalNotStandardCase())
+    print('W statistics: {}'.format(ws.mean()))
+    ws = simulation_sw(LaplaceCase())
+    print('W statistics: {}'.format(ws.mean()))
+    ws = simulation_sw(CauchyCase())
+    print('W statistics: {}'.format(ws.mean()))
+
+
 if __name__=='__main__':
     main()
+    main_sw()
