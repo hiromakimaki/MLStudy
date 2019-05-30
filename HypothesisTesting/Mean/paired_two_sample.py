@@ -63,12 +63,9 @@ def simulation(test_method, test_case, n_iter=1000):
 
 
 def main():
-    rejected = simulation(t_test, CaseSameMeanSameVar())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
-    rejected = simulation(t_test, CaseSameMeanDiffVar())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
-    rejected = simulation(t_test, CaseDiffMeanSameVar())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
+    for test_case in [CaseSameMeanSameVar(), CaseSameMeanDiffVar(), CaseDiffMeanSameVar()]:
+        rejected = simulation(t_test, test_case)
+        print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
 
 
 if __name__=='__main__':

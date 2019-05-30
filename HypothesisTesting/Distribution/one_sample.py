@@ -85,14 +85,9 @@ def simulation(test_case, n_iter=500):
 
 
 def main():
-    rejected = simulation(NormalCase())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
-    rejected = simulation(NormalNotStandardCase())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
-    rejected = simulation(LaplaceCase())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
-    rejected = simulation(CauchyCase())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
+    for test_case in [NormalCase(), NormalNotStandardCase(), LaplaceCase(), CauchyCase()]:
+        rejected = simulation(test_case)
+        print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
 
 
 def simulation_sw(test_case, n_iter=50):
@@ -104,14 +99,9 @@ def simulation_sw(test_case, n_iter=50):
 
 
 def main_sw():
-    ws = simulation_sw(NormalCase())
-    print('W statistics: {}'.format(ws.mean()))
-    ws = simulation_sw(NormalNotStandardCase())
-    print('W statistics: {}'.format(ws.mean()))
-    ws = simulation_sw(LaplaceCase())
-    print('W statistics: {}'.format(ws.mean()))
-    ws = simulation_sw(CauchyCase())
-    print('W statistics: {}'.format(ws.mean()))
+    for test_case in [NormalCase(), NormalNotStandardCase(), LaplaceCase(), CauchyCase()]:
+        ws = simulation_sw(test_case)
+        print('W statistics: {}'.format(ws.mean()))
 
 
 if __name__=='__main__':

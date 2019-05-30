@@ -75,12 +75,9 @@ def simulation(test_case, n_iter=1000):
 
 
 def main():
-    rejected = simulation(CaseToBeAccepted())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
-    rejected = simulation(CaseToBeRejected())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
-    rejected = simulation(CaseExceptional())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
+    for test_case in [CaseToBeAccepted(), CaseToBeRejected(), CaseExceptional()]:
+        rejected = simulation(test_case)
+        print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
 
 
 if __name__=='__main__':

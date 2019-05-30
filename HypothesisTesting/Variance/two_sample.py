@@ -58,10 +58,9 @@ def simulation(test_case, n_iter=1000):
 
 
 def main():
-    rejected = simulation(CaseSameVariance())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
-    rejected = simulation(CaseDiffVariance())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
+    for test_case in [CaseSameVariance(), CaseDiffVariance()]:
+        rejected = simulation(test_case)
+        print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
 
 
 if __name__=='__main__':

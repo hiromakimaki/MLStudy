@@ -61,10 +61,9 @@ def simulation(test_case, n_iter=1000):
 
 
 def main():
-    rejected = simulation(CaseZeroCorr())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
-    rejected = simulation(CasePositiveCorr())
-    print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
+    for test_case in [CaseZeroCorr(), CasePositiveCorr()]:
+        rejected = simulation(test_case)
+        print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
 
 
 if __name__=='__main__':
