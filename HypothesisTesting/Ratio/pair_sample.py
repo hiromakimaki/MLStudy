@@ -5,6 +5,10 @@ np.random.seed(0)
 
 
 def cochran_q_test(data, alpha):
+    """
+    Note:
+        McNemar's test is a special case of this.
+    """
     k = data.shape[1]
     A = data.sum(axis=0)
     B = data.sum(axis=1)
