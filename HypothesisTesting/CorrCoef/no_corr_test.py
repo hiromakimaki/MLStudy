@@ -42,14 +42,13 @@ def spearman_rank_corr_test(xs, ys, alpha):
 def kendall_rank_corr_test(xs, ys, alpha):
     assert len(xs) == len(ys)
     n = len(xs)
-    n_same_sign = 0
-    n_diff_sign = 0
-    for i in range(n):
-        for j in range(i+1, n):
-            if (xs[i] - xs[j]) * (ys[i] - ys[j]) > 0:
-                n_same_sign += 1
-            else:
-                n_diff_sign += 1
+    mat_xs = np.repeat(xs.reshape((1, n)), n, axis=0)
+    diff_mat_xs = mat_xs - mat_xs.T
+    mat_ys = np.repeat(ys.reshape((1, n)), n, axis=0)
+    diff_mat_ys = mat_ys - mat_ys.T
+    mat_sign = np.sign(diff_mat_xs * diff_mat_ys)
+    n_same_sign = np.sum(mat_sign > 0) / 2
+    n_diff_sign = np.sum(mat_sign < 0) / 2
     tau = (n_same_sign - n_diff_sign) / (n * (n + 1) / 2) # Kendall's rank corr coef
     v = 2 * (2 * n + 5) / (9 * n * (n - 1))
     t = tau / np.sqrt(v)
