@@ -90,7 +90,7 @@ class CaseSmallSampleSize(TestCase):
 
     @property
     def sample_size(self):
-        return 8
+        return 10
 
     def sampling(self, sample_size):
         xs = np.arange(sample_size) + np.random.choice([-1, 0, 1], size=sample_size, p=[0.3, 0.4, 0.3])
