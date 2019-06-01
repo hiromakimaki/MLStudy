@@ -39,6 +39,26 @@ def spearman_rank_corr_test(xs, ys, alpha):
     return 0
 
 
+def kendall_rank_corr_test(xs, ys, alpha):
+    assert len(xs) == len(ys)
+    n = len(xs)
+    n_same_sign = 0
+    n_diff_sign = 0
+    for i in range(n):
+        for j in range(i+1, n):
+            if (xs[i] - xs[j]) * (ys[i] - ys[j]) > 0:
+                n_same_sign += 1
+            else:
+                n_diff_sign += 1
+    tau = (n_same_sign - n_diff_sign) / (n * (n + 1) / 2) # Kendall's rank corr coef
+    v = 2 * (2 * n + 5) / (9 * n * (n - 1))
+    t = tau / np.sqrt(v)
+    lower, upper = stats.norm.ppf(q=[alpha/2, 1-alpha/2])
+    if t < lower or upper < t:
+        return 1
+    return 0
+
+
 class TestCase:
 
     @property
@@ -92,6 +112,8 @@ def main():
         print('Null hypothesis rejected ratio (Pearson): {} %'.format(100 * sum(rejected) / len(rejected)))
         rejected = simulation(spearman_rank_corr_test, test_case)
         print('Null hypothesis rejected ratio (Spearman): {} %'.format(100 * sum(rejected) / len(rejected)))
+        rejected = simulation(kendall_rank_corr_test, test_case)
+        print('Null hypothesis rejected ratio (Kendall): {} %'.format(100 * sum(rejected) / len(rejected)))
 
 
 if __name__=='__main__':
