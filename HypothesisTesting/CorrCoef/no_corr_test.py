@@ -4,10 +4,10 @@ import numpy as np
 np.random.seed(0)
 
 
-def no_corr_test(xs, ys, alpha):
+def pearson_corr_test(xs, ys, alpha):
     """
     Summary:
-        Execute no correlation test.
+        Execute no correlation test with Pearson's correlation coefficient.
     Return value:
         0: The null hypothesis is NOT rejected.
         1: Rejected.
@@ -21,6 +21,20 @@ def no_corr_test(xs, ys, alpha):
     t_value = np.sqrt(n-2) * np.abs(r) / np.sqrt(1 - r**2)
     lower, upper = stats.t.ppf(q=[alpha/2, 1-alpha/2], df=n-2)
     if t_value < lower or upper < t_value:
+        return 1
+    return 0
+
+
+def spearman_rank_corr_test(xs, ys, alpha):
+    assert len(xs) == len(ys)
+    n = len(xs)
+    x_ranks = stats.rankdata(xs)
+    y_ranks = stats.rankdata(ys)
+    d = x_ranks - y_ranks
+    r = 1 - (6 * (d**2).sum()) / (n**3 - n) # Spearman's rank corr coef
+    t = r * np.sqrt(n - 2) / np.sqrt(1 - r**2)
+    lower, upper = stats.t.ppf(q=[alpha/2, 1-alpha/2], df=n-2)
+    if t < lower or upper < t:
         return 1
     return 0
 
@@ -52,18 +66,20 @@ class CasePositiveCorr(TestCase):
         return x, x + np.random.normal(0, 1, sample_size)
 
 
-def simulation(test_case, n_iter=1000):
+def simulation(test_method, test_case, n_iter=1000):
     rejected = np.zeros(n_iter)
     for i in range(n_iter):
         xs, ys = test_case.sampling(test_case.sample_size)
-        rejected[i] = no_corr_test(xs, ys, test_case.alpha)
+        rejected[i] = test_method(xs, ys, test_case.alpha)
     return rejected
 
 
 def main():
     for test_case in [CaseZeroCorr(), CasePositiveCorr()]:
-        rejected = simulation(test_case)
-        print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
+        rejected = simulation(pearson_corr_test, test_case)
+        print('Null hypothesis rejected ratio (Pearson): {} %'.format(100 * sum(rejected) / len(rejected)))
+        rejected = simulation(spearman_rank_corr_test, test_case)
+        print('Null hypothesis rejected ratio (Spearman): {} %'.format(100 * sum(rejected) / len(rejected)))
 
 
 if __name__=='__main__':
