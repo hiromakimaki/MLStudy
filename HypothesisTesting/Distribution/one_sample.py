@@ -39,6 +39,13 @@ def birnbaum_tingey_test(xs, alpha):
     return 0
 
 
+def kolmogorov_smirnov_test(xs, alpha):
+    """
+    TODO: Implement this.
+    """
+    pass
+
+
 class TestCase:
     @property
     def alpha(self):

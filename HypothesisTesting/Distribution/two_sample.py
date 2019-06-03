@@ -51,6 +51,13 @@ def mann_whitney_u_test(xs, ys, alpha):
     return 0
 
 
+def kolmogorov_smirnov_test(xs, alpha):
+    """
+    TODO: Implement this.
+    """
+    pass
+
+
 class TestCase:
     @property
     def alpha(self):
