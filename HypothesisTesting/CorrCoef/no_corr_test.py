@@ -97,6 +97,21 @@ class CaseSmallSampleSize(TestCase):
         return xs, ys
 
 
+class CaseSmallSampleSizeNoCorr(TestCase):
+
+    @property
+    def sample_size(self):
+        return 10
+
+    def sampling(self, sample_size):
+        choices = np.arange(-10, 10)
+        d = len(choices)
+        prob = np.ones(d) / d
+        xs = np.random.choice(choices, size=sample_size, p=prob)
+        ys = np.random.choice(choices, size=sample_size, p=prob)
+        return xs, ys
+
+
 def simulation(test_method, test_case, n_iter=1000):
     rejected = np.zeros(n_iter)
     for i in range(n_iter):
@@ -106,7 +121,7 @@ def simulation(test_method, test_case, n_iter=1000):
 
 
 def main():
-    for test_case in [CaseZeroCorr(), CasePositiveCorr(), CaseSmallSampleSize()]:
+    for test_case in [CaseZeroCorr(), CasePositiveCorr(), CaseSmallSampleSize(), CaseSmallSampleSizeNoCorr()]:
         rejected = simulation(pearson_corr_test, test_case)
         print('Null hypothesis rejected ratio (Pearson): {} %'.format(100 * sum(rejected) / len(rejected)))
         rejected = simulation(spearman_rank_corr_test, test_case)
