@@ -4,7 +4,7 @@ from scipy import stats
 np.random.seed(0)
 
 
-def portmanteau_test(xs, m, alpha):
+def ljung_box_test(xs, m, alpha):
     n = len(xs)
     assert n > m
     ac = auto_corr(xs, m)
@@ -32,7 +32,7 @@ def simulation(n_iter = 500):
     rejected = np.zeros(n_iter)
     for i in range(n_iter):
         xs = np.random.normal(0, 5, 30)
-        rejected[i] = portmanteau_test(xs, 8, 0.05)
+        rejected[i] = ljung_box_test(xs, 8, 0.05)
     return rejected
 
 
