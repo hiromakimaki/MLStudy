@@ -8,7 +8,7 @@ def ljung_box_test(xs, m, alpha):
     n = len(xs)
     assert n > m
     ac = auto_corr(xs, m)
-    q = n * (n + 2) * np.sum(ac / (n - np.arange(1, m+1)))
+    q = n * (n + 2) * np.sum((ac**2) / (n - np.arange(1, m+1)))
     upper = stats.chi2.ppf(q=1-alpha, df=m)
     if upper < q:
         return 1
