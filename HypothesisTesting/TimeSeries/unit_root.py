@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy import stats
 
 
@@ -31,17 +32,21 @@ def main():
     print('Null hypothesis rejected ratio: {} %'.format(100 * sum(rejected) / len(rejected)))
 
 
-def check_distribution(n_iter=100):
+def check_distribution(n_iter=500):
     tau_x = np.zeros(n_iter)
     tau_y = np.zeros(n_iter)
+    rho_x = 0.7
+    rho_y = 1
     n = 20
     for i in range(n_iter):
-        xs = generate_ar1_data(n, 0.7) # not unit root process
-        tau_x[i] = np.sqrt(n) * (ols_estimator(xs) - 0.7)
-        ys = generate_ar1_data(n, 1) # unit root process
-        tau_y[i] = np.sqrt(n) * (ols_estimator(ys) - 1)
-    print(tau_x)
-    print(tau_y)
+        xs = generate_ar1_data(n, rho_x) # not unit root process
+        tau_x[i] = np.sqrt(n) * (ols_estimator(xs) - rho_x)
+        ys = generate_ar1_data(n, rho_y) # unit root process
+        tau_y[i] = np.sqrt(n) * (ols_estimator(ys) - rho_y)
+    plt.hist(xs, bins=20, alpha=0.3, label='x')
+    plt.hist(ys, bins=20, alpha=0.3, label='y')
+    plt.legend(loc='upper left')
+    plt.show()
 
 
 if __name__=='__main__':
