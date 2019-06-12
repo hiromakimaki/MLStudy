@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 from scipy import stats
 
 
+np.random.seed(0)
+
+
 def ols_estimator(xs):
     return (xs[1:] * xs[:-1]).sum() / (xs**2).sum()
 
