@@ -35,16 +35,21 @@ def main():
 def check_distribution(n_iter=500):
     tau_x = np.zeros(n_iter)
     tau_y = np.zeros(n_iter)
-    rho_x = 0.7
-    rho_y = 1
-    n = 20
+    tau_z = np.zeros(n_iter)
+    rho_x = 0
+    rho_y = 0.5
+    rho_z = 1
+    n = 500
     for i in range(n_iter):
         xs = generate_ar1_data(n, rho_x) # not unit root process
         tau_x[i] = np.sqrt(n) * (ols_estimator(xs) - rho_x)
-        ys = generate_ar1_data(n, rho_y) # unit root process
+        ys = generate_ar1_data(n, rho_y) # not unit root process
         tau_y[i] = np.sqrt(n) * (ols_estimator(ys) - rho_y)
+        zs = generate_ar1_data(n, rho_y) # unit root process
+        tau_z[i] = np.sqrt(n) * (ols_estimator(zs) - rho_z)
     plt.hist(xs, bins=20, alpha=0.3, label='x')
     plt.hist(ys, bins=20, alpha=0.3, label='y')
+    plt.hist(zs, bins=20, alpha=0.3, label='z')
     plt.legend(loc='upper left')
     plt.show()
 
