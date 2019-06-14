@@ -17,6 +17,11 @@ def generate_ar1_data(n, coef):
     return xs
 
 
+def phillips_perron_test(xs, alpha):
+    # TODO: Implement this
+    return 0
+
+
 def dickey_fuller_test(xs, alpha):
     # TODO: Implement this
     return 0
