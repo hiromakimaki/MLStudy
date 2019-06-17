@@ -63,12 +63,8 @@ def prob_1_3():
 
 
 def main(args):
-    if args.prob_no == 1:
-        prob_1_1()
-    elif args.prob_no == 2:
-        prob_1_2()
-    elif args.prob_no == 3:
-        prob_1_3()
+    func_name = 'prob_1_{}'.format(args.prob_no)
+    globals()[func_name]()
     print('Fin.')
 
 
