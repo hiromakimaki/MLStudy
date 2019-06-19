@@ -62,6 +62,10 @@ def prob_1_3():
         plt.show()
 
 
+def prob_1_4():
+    print('No code exists to be implemented.')
+
+
 def main(args):
     func_name = 'prob_1_{}'.format(args.prob_no)
     globals()[func_name]()
