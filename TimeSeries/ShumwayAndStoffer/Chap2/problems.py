@@ -7,19 +7,24 @@ np.random.seed(0)
 
 
 def prob_2_3():
-    # (a)
+    def model_a(ts):
+        # random walk with drift
+        return 0.01 * ts + np.random.normal(0, 1, size=len(ts)).cumsum()
+    def model_b(ts):
+        # trend plus noise
+        return 0.01 * ts + np.random.normal(0, 1, size=len(ts))
     n_series = 4
     n = 100
-    delta = 0.01
-    sigma = 1
     ts = np.arange(n) + 1
-    for i in range(n_series):
-        xs = delta * ts + np.random.normal(0, sigma, size=n).cumsum() # random walk with drift
-        (params, residuals, rank, s) = np.linalg.lstsq(ts.reshape((-1, 1)), xs, rcond=None)
-        plt.plot(ts, xs, label='{}-th data'.format(i+1))
-        plt.plot(ts, ts * params[0], label='{}-th fitted line'.format(i+1))
-    plt.legend(loc='upper left')
-    plt.show()
+    for model in [model_a, model_b]:
+        for i in range(n_series):
+            xs =  model(ts)
+            (params, residuals, rank, s) = np.linalg.lstsq(ts.reshape((-1, 1)), xs, rcond=None)
+            plt.plot(ts, xs, label='{}-th data'.format(i+1))
+            plt.plot(ts, ts * params[0], label='{}-th fitted line'.format(i+1), linestyle='--')
+        plt.legend(loc='upper left')
+        plt.title('Data and fitted lines for {}'.format(model.__name__))
+        plt.show()
 
 
 def main(args):
