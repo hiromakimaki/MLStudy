@@ -33,7 +33,7 @@ class MyLinearLasso:
                 break
             iter_count += 1
             if iter_count >= max_iter:
-                print('iteration stopped because iteration count attains `max_iter`')
+                print('iteration stopped because iteration count attained `max_iter`')
             beta_old = beta.copy()
         return beta
 
