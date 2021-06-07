@@ -12,15 +12,14 @@ class MyLinearRidge:
         self._fit_intercept = fit_intercept
 
     def fit(self, X, y):
-        if self._fit_intercept:
-            x = np.hstack((X, np.ones((X.shape[0], 1))))
-        else:
-            x = X.copy()
-        n, p = x.shape
+        n, p = X.shape
         assert n == y.shape[0]
-        mat = np.dot(x.T, x) + self._alpha * n * np.eye(p)
-        vec = np.dot(x.T, y)
+        mat = np.dot(X.T, X) + self._alpha * n * np.eye(p)
+        vec = np.dot(X.T, y)
         beta = np.linalg.solve(mat, vec)
+        self.coef_ = beta.copy()
+        if self._fit_intercept:
+            self.intercept_ = y.mean() - np.dot(X, beta).mean()
         return beta
 
 
@@ -37,18 +36,19 @@ def main():
     X, y = generate_sample_data()
     n, p = X.shape
     alphas = np.arange(0.05, 5, 0.05)
-    betas = np.zeros((alphas.shape[0], p))
+    betas = np.zeros((alphas.shape[0], p + 1))  # with intercept
     for i, alpha in enumerate(alphas):
         print(f'{i}-th iteration started.')
-        model = MyLinearRidge(alpha=alpha, fit_intercept=False)
-        beta = model.fit(X, y)
-        betas[i, :] = beta.copy()
-    for j in range(p):
+        model = MyLinearRidge(alpha=alpha, fit_intercept=True)
+        model.fit(X, y)
+        betas[i, 0] = model.intercept_
+        betas[i, 1:] = model.coef_.copy()
+    for j in range(p + 1):
         plt.plot(alphas, betas[:, j], label=f'$\\beta_{j}$')
     plt.legend(loc='upper right')
     plt.xlabel(r'$\alpha$')
     plt.ylabel(r'$\beta$')
-    plt.title('LASSO path')
+    plt.title('Ridge path')
     plt.show()
 
 

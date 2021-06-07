@@ -33,7 +33,8 @@ class MyLinearLasso:
                 break
             beta_old = beta.copy()
         self.coef_ = beta.copy()
-        self.intercept_ = y.mean() - np.dot(X, beta).mean()
+        if self._fit_intercept:
+            self.intercept_ = y.mean() - np.dot(X, beta).mean()
         return
 
 
