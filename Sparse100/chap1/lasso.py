@@ -15,27 +15,26 @@ class MyLinearLasso:
         return np.sign(x) * np.clip(np.abs(x) - self._alpha, 0, None)
 
     def fit(self, X, y, max_iter=1000):
-        if self._fit_intercept:
-            x = np.hstack((X, np.ones((X.shape[0], 1))))
-        else:
-            x = X.copy()
-        n, p = x.shape
+        n, p = X.shape
         assert n == y.shape[0]
         beta, beta_old = np.zeros(p), np.zeros(p)
         iter_count = 0
         while True:
             for j in range(p):
-                r = y - (np.dot(x, beta) - x[:, j] * beta[j])
-                s = np.dot(x[:, j], r) / n
-                beta[j] = self.soft_threshold(s) / (np.sum(x[:, j]**2) / n)
+                r = y - (np.dot(X, beta) - X[:, j] * beta[j])
+                s = np.dot(X[:, j], r) / n
+                beta[j] = self.soft_threshold(s) / (np.sum(X[:, j]**2) / n)
             eps = np.linalg.norm(beta - beta_old)
             if eps < 10**(-6):
                 break
             iter_count += 1
             if iter_count >= max_iter:
                 print('iteration stopped because iteration count attained `max_iter`')
+                break
             beta_old = beta.copy()
-        return beta
+        self.coef_ = beta.copy()
+        self.intercept_ = y.mean() - np.dot(X, beta).mean()
+        return
 
 
 def generate_sample_data():
@@ -51,13 +50,14 @@ def main():
     X, y = generate_sample_data()
     n, p = X.shape
     alphas = np.arange(0.05, 5, 0.05)
-    betas = np.zeros((alphas.shape[0], p))
+    betas = np.zeros((alphas.shape[0], p + 1))  # with intercept
     for i, alpha in enumerate(alphas):
         print(f'{i}-th iteration started.')
-        model = MyLinearLasso(alpha=alpha, fit_intercept=False)
-        beta = model.fit(X, y)
-        betas[i, :] = beta.copy()
-    for j in range(p):
+        model = MyLinearLasso(alpha=alpha, fit_intercept=True)
+        model.fit(X, y)
+        betas[i, 0] = model.intercept_
+        betas[i, 1:] = model.coef_.copy()
+    for j in range(p + 1):
         plt.plot(alphas, betas[:, j], label=f'$\\beta_{j}$')
     plt.legend(loc='upper right')
     plt.xlabel(r'$\alpha$')
